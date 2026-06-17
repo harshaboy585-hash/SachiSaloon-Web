@@ -70,7 +70,7 @@ export default function Gallery({ gallery = [] }) {
 
   useEffect(() => {
     if (!isPaused && totalItems > 1) {
-      timeoutRef.current = setTimeout(nextSlide, 4500);
+      timeoutRef.current = setTimeout(nextSlide, 2500);
     }
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);

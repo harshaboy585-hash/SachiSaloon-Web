@@ -151,9 +151,14 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
                 <CheckCircle className="success-icon" size={50} />
                 <h3>Booking Request Logged!</h3>
                 <p>We saved your details and opened WhatsApp to verify your slot.</p>
-                <button onClick={() => setSuccess(false)} className="btn-gold btn-success-ok">
-                  Book Another Service
-                </button>
+                <div className="booking-success-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                  <button onClick={() => setSuccess(false)} className="btn-gold btn-success-ok">
+                    Book Another Service
+                  </button>
+                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="whatsapp-btn btn-gold">
+                    WhatsApp
+                  </a>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="booking-form">

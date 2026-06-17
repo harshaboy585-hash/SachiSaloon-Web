@@ -324,7 +324,7 @@ button, input, textarea, select {
   right: 30px;
   width: 60px;
   height: 60px;
-  background-color: var(--color-gold);
+  background-color: #25D366; // WhatsApp green
   color: #080808;
   border-radius: 50%;
   display: flex;
@@ -338,7 +338,7 @@ button, input, textarea, select {
 }
 
 .floating-whatsapp:hover {
-  background-color: var(--color-gold-light);
+  background-color: #34B7F1;
   transform: scale(1.1) translateY(-5px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(197, 168, 106, 0.6);
   color: #080808;
@@ -636,12 +636,12 @@ button, input, textarea, select {
 }
 
 .whatsapp-btn {
-  border-color: var(--color-gold);
+  background-color: #25D366;
   color: var(--color-gold-light);
 }
 
 .whatsapp-btn:hover {
-  background: rgba(197, 168, 106, 0.1);
+  background: rgba(37, 211, 102, 0.1);
   color: var(--color-gold-light);
 }
 
