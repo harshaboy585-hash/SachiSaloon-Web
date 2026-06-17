@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { Calendar, User, Phone, Clipboard, MessageSquare, CheckCircle } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import html2canvas from 'html2canvas';
 
 export default function BookingForm({ services = [], whatsappNumber = '+94-742892528' }) {
   const defaultServices = [
@@ -76,7 +77,7 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
       }
       
       setSuccess(true);
-      window.open(waUrl, '_blank');
+      await shareTicketImage();
 
       // Reset form
       setFormData({
@@ -106,6 +107,41 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
     }
   };
 
+  const shareTicketImage = async () => {
+    const ticketEl = document.getElementById('booking-ticket');
+    if (!ticketEl) {
+      window.open(waUrl, '_blank');
+      return;
+    }
+    const formattedDate = formData.booking_date ? new Date(formData.booking_date).toLocaleString() : '';
+    ticketEl.innerHTML = `
+      <div style="font-family: Inter, sans-serif; color: #fff; background:#0a0a0a; padding:20px; border-radius:12px; width:350px;">
+        <h2 style="color:#25D366; margin:0 0 10px;">Sachi Saloon</h2>
+        <p><strong>Name:</strong> ${formData.customer_name}</p>
+        <p><strong>Phone:</strong> ${formData.phone}</p>
+        <p><strong>Service:</strong> ${formData.service || dropdownServices[0]}</p>
+        <p><strong>Date & Time:</strong> ${formattedDate}</p>
+        <p><strong>Message:</strong> ${formData.message || 'None'}</p>
+      </div>
+    `;
+    try {
+      const canvas = await html2canvas(ticketEl);
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const file = new File([blob], 'booking.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Your Booking Confirmation',
+          text: 'Please find your booking details attached.'
+        });
+      } else {
+        window.open(waUrl, '_blank');
+      }
+    } catch (e) {
+      console.error(e);
+      window.open(waUrl, '_blank');
+    }
+  };
   return (
     <section id="booking" className="booking-section section-py">
       <div className="booking-container container">
@@ -267,6 +303,7 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
           </div>
         </div>
       </div>
-    </section>
+    <div id="booking-ticket" style="position:absolute; left:-9999px; top:-9999px;"></div>
+</section>
   );
 }

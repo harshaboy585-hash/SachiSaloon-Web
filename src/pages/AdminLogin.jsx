@@ -34,30 +34,18 @@ export default function AdminLogin() {
   }, [navigate]);
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  e.preventDefault();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    if (!isSupabaseConfigured()) {
-      setError('Supabase is not configured yet. Please add your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to the .env file, then create the admin user in Supabase Auth.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (authError) throw authError;
-      navigate('/admin');
-    } catch (err) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (error) {
+    alert('Invalid email or password');
+  } else {
+    navigate('/admin');
+  }
+};
 
   return (
     <div className="login-screen">
