@@ -90,7 +90,21 @@ export default function AdminDashboard() {
       // Settings
       const { data: settingsData } = await supabase.from('site_settings').select('*').limit(1);
       if (settingsData && settingsData.length > 0) {
-        setSettings(settingsData[0]);
+        const mergedSettings = {
+          id: settingsData[0].id || '',
+          salon_name: settingsData[0].salon_name || '',
+          hero_title: settingsData[0].hero_title || '',
+          hero_subtitle: settingsData[0].hero_subtitle || '',
+          about_text: settingsData[0].about_text || '',
+          phone: settingsData[0].phone || '',
+          whatsapp: settingsData[0].whatsapp || '',
+          youtube_url: settingsData[0].youtube_url || '',
+          email: settingsData[0].email || '',
+          address: settingsData[0].address || '',
+          opening_hours: settingsData[0].opening_hours || '',
+          hero_image_url: settingsData[0].hero_image_url || ''
+        };
+        setSettings(mergedSettings);
       }
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -153,7 +167,7 @@ export default function AdminDashboard() {
         const { error } = await supabase.from('services').update({
           name: serviceForm.name,
           description: serviceForm.description,
-          display_order: parseInt(serviceForm.display_order),
+          display_order: parseInt(serviceForm.display_order) || 0,
           is_active: serviceForm.is_active
         }).eq('id', editingId);
 
@@ -164,7 +178,7 @@ export default function AdminDashboard() {
         const { error } = await supabase.from('services').insert([{
           name: serviceForm.name,
           description: serviceForm.description,
-          display_order: parseInt(serviceForm.display_order),
+          display_order: parseInt(serviceForm.display_order) || 0,
           is_active: serviceForm.is_active
         }]);
 
@@ -210,7 +224,7 @@ export default function AdminDashboard() {
         const { error } = await supabase.from('pricing').update({
           service_name: pricingForm.service_name,
           price: pricingForm.price,
-          display_order: parseInt(pricingForm.display_order),
+          display_order: parseInt(pricingForm.display_order) || 0,
           is_active: pricingForm.is_active
         }).eq('id', editingId);
 
@@ -220,7 +234,7 @@ export default function AdminDashboard() {
         const { error } = await supabase.from('pricing').insert([{
           service_name: pricingForm.service_name,
           price: pricingForm.price,
-          display_order: parseInt(pricingForm.display_order),
+          display_order: parseInt(pricingForm.display_order) || 0,
           is_active: pricingForm.is_active
         }]);
 
@@ -293,7 +307,7 @@ export default function AdminDashboard() {
           media_url: finalMediaUrl,
           media_type: galleryForm.media_type,
           title: galleryForm.title,
-          display_order: parseInt(galleryForm.display_order),
+          display_order: parseInt(galleryForm.display_order) || 0,
           is_active: galleryForm.is_active
         }).eq('id', editingId);
 
@@ -304,7 +318,7 @@ export default function AdminDashboard() {
           media_url: finalMediaUrl,
           media_type: galleryForm.media_type,
           title: galleryForm.title,
-          display_order: parseInt(galleryForm.display_order),
+          display_order: parseInt(galleryForm.display_order) || 0,
           is_active: galleryForm.is_active
         }]);
 
@@ -343,6 +357,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const startEditGallery = (item) => {
+    setEditingId(item.id);
+    setGalleryForm({
+      id: item.id,
+      title: item.title || '',
+      media_type: item.media_type || 'image',
+      display_order: item.display_order || 0,
+      is_active: item.is_active !== undefined ? item.is_active : true
+    });
+    setGalleryMediaUrl(item.media_url || '');
+  };
+
   // ====================
   // SETTINGS HANDLERS
   // ====================
@@ -350,7 +376,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSaving(true);
     try {
-      const { error } = await supabase.from('site_settings').update({
+      const payload = {
         salon_name: settings.salon_name,
         hero_title: settings.hero_title,
         hero_subtitle: settings.hero_subtitle,
@@ -362,10 +388,22 @@ export default function AdminDashboard() {
         address: settings.address,
         opening_hours: settings.opening_hours,
         hero_image_url: settings.hero_image_url
-      }).eq('id', settings.id);
+      };
+
+      let error;
+      if (settings.id) {
+        const res = await supabase.from('site_settings').update(payload).eq('id', settings.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('site_settings').insert([payload]).select();
+        error = res.error;
+        if (res.data && res.data.length > 0) {
+          setSettings(res.data[0]);
+        }
+      }
 
       if (error) throw error;
-      showNotification('success', 'Site settings updated successfully');
+      showNotification('success', 'Site settings saved successfully');
     } catch (err) {
       showNotification('error', err.message);
     } finally {
@@ -700,7 +738,7 @@ export default function AdminDashboard() {
 
                   <div className="gallery-dashboard-grid">
                     <form onSubmit={handleGallerySubmit} className="glass-panel gallery-upload-form">
-                      <h3>Upload / Add Media</h3>
+                      <h3>{editingId ? 'Edit Gallery Item' : 'Upload / Add Media'}</h3>
                       
                       <div className="form-group">
                         <label className="form-label">Media Title</label>
@@ -773,9 +811,26 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      <button type="submit" disabled={saving} className="btn-gold" style={{ width: '100%' }}>
-                        {saving ? 'Uploading...' : 'Add to Gallery'}
-                      </button>
+                      <div className="form-actions" style={{ display: 'flex', gap: '1rem' }}>
+                        <button type="submit" disabled={saving} className="btn-gold" style={{ flex: 1 }}>
+                          {saving ? (galleryFile ? 'Uploading...' : 'Saving...') : (editingId ? 'Update Item' : 'Add to Gallery')}
+                        </button>
+                        {editingId && (
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              setEditingId(null);
+                              setGalleryForm({ id: '', title: '', media_type: 'image', display_order: 0, is_active: true });
+                              setGalleryFile(null);
+                              setGalleryMediaUrl('');
+                            }}
+                            className="btn-outline"
+                            style={{ flex: 1 }}
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </form>
 
                     <div className="gallery-admin-list">
@@ -794,6 +849,7 @@ export default function AdminDashboard() {
                               <span className="badge-media-type">{item.media_type}</span>
                               <div className="gallery-admin-actions">
                                 <a href={item.media_url} target="_blank" rel="noopener noreferrer" className="btn-open-link"><ExternalLink size={14} /></a>
+                                <button onClick={() => startEditGallery(item)} className="btn-edit-item" style={{ background: 'transparent', border: 'none', color: 'var(--color-gold)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }} title="Edit"><Edit size={14} /></button>
                                 <button onClick={() => deleteGalleryItem(item.id, item.media_url)} className="btn-delete-item"><Trash2 size={14} /></button>
                               </div>
                             </div>

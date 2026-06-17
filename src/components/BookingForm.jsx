@@ -177,7 +177,7 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
           </div>
         </div>
       </div>
-      <div id="booking-ticket" style="position:absolute; left:-9999px; top:-9999px;" />
+      <div id="booking-ticket" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} />
     </section>
   );
 }
