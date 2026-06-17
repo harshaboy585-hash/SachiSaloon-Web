@@ -16,6 +16,50 @@ export default function Gallery({ gallery = [] }) {
 
   const totalItems = activeItems.length;
 
+  const getSlideStyle = (idx) => {
+    let offset = idx - currentIndex;
+    
+    // Handle circular wrap around
+    const half = Math.floor(totalItems / 2);
+    if (offset > half) {
+      offset -= totalItems;
+    } else if (offset < -half) {
+      offset += totalItems;
+    }
+    
+    const absOffset = Math.abs(offset);
+    
+    // If the card is too far away, hide it or keep it transitionable
+    if (absOffset > 2) {
+      return {
+        opacity: 0,
+        visibility: 'hidden',
+        transform: `translateX(calc(-50% + ${offset * 120}px)) scale(0.5) rotateY(${offset * 35}deg)`,
+        zIndex: 0,
+        position: 'absolute',
+        left: '50%',
+        transition: 'transform 0.8s, opacity 0.8s, z-index 0.8s'
+      };
+    }
+    
+    // Calculate positioning and rotation
+    const translateX = offset * 220; // Distance between cards
+    const rotateY = offset * -35;    // Slanted angle facing the center (negative for right, positive for left)
+    const scale = 1 - absOffset * 0.15; // Shrink as it gets further
+    const zIndex = 10 - absOffset;   // Center is on top
+    const opacity = 1 - absOffset * 0.25; // Fade as it gets further
+    
+    return {
+      transform: `translateX(calc(-50% + ${translateX}px)) scale(${scale}) rotateY(${rotateY}deg)`,
+      zIndex: zIndex,
+      opacity: opacity,
+      visibility: 'visible',
+      position: 'absolute',
+      left: '50%',
+      transition: 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s, z-index 0.8s'
+    };
+  };
+
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % totalItems);
   };
@@ -49,38 +93,43 @@ export default function Gallery({ gallery = [] }) {
           onMouseLeave={() => setIsPaused(false)}
         >
           <div className="gallery-carousel-track-container">
-            <div 
-              className="gallery-carousel-track"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {activeItems.map((item, idx) => (
-                <div key={item.id || idx} className="gallery-slide">
-                  {item.media_type === 'video' ? (
-                    <div className="gallery-media-container">
-                      <video 
-                        src={item.media_url} 
-                        className="gallery-media" 
-                        controls
-                        muted
-                        playsInline
-                      />
-                    </div>
-                  ) : (
-                    <div className="gallery-media-container">
-                      <img 
-                        src={item.media_url} 
-                        alt={item.title || 'Sachi Saloon Style'} 
-                        className="gallery-media" 
-                      />
-                    </div>
-                  )}
-                  {item.title && (
-                    <div className="gallery-media-overlay">
-                      <h3 className="gallery-item-title">{item.title}</h3>
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="gallery-carousel-track">
+              {activeItems.map((item, idx) => {
+                const style = getSlideStyle(idx);
+                return (
+                  <div 
+                    key={item.id || idx} 
+                    className={`gallery-slide ${idx === currentIndex ? 'active' : ''}`}
+                    style={style}
+                    onClick={() => setCurrentIndex(idx)}
+                  >
+                    {item.media_type === 'video' ? (
+                      <div className="gallery-media-container">
+                        <video 
+                          src={item.media_url} 
+                          className="gallery-media" 
+                          controls={idx === currentIndex}
+                          muted
+                          playsInline
+                        />
+                      </div>
+                    ) : (
+                      <div className="gallery-media-container">
+                        <img 
+                          src={item.media_url} 
+                          alt={item.title || 'Sachi Saloon Style'} 
+                          className="gallery-media" 
+                        />
+                      </div>
+                    )}
+                    {item.title && (
+                      <div className="gallery-media-overlay">
+                        <h3 className="gallery-item-title">{item.title}</h3>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

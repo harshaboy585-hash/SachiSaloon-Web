@@ -71,6 +71,13 @@ export default function Footer({ settings }) {
       <div className="footer-bottom">
         <div className="container footer-bottom-content">
           <p>&copy; {new Date().getFullYear()} {salonName}. All rights reserved.</p>
+          <div className="footer-watermark">
+            <span>Powered by</span>
+            <a href="https://github.com/harshaboy585-hash" target="_blank" rel="noopener noreferrer">
+              <img src="/toolcorex.jpg" alt="TOOLCOREX Logo" className="watermark-logo" />
+              <span className="watermark-brand">TOOLCOREX</span>
+            </a>
+          </div>
           <p className="footer-author">Designed with excellence</p>
         </div>
       </div>

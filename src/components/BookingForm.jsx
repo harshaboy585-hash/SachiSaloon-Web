@@ -44,8 +44,20 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
     setLoading(true);
     setError('');
 
+    const formattedDate = formData.booking_date ? new Date(formData.booking_date).toLocaleString() : '';
+    const whatsappMsg = `✨ *SACHI SALOON - NEW BOOKING* ✨\n\n` +
+      `👤 *Customer Name:* ${formData.customer_name}\n` +
+      `📞 *Phone:* ${formData.phone}\n` +
+      `✂️ *Service:* ${formData.service || dropdownServices[0]}\n` +
+      `📅 *Date & Time:* ${formattedDate}\n` +
+      `💬 *Message:* ${formData.message || 'None'}\n\n` +
+      `Please confirm my appointment slot. Thank you!`;
+
+    const cleanNum = whatsappNumber.replace(/[^0-9]/g, '');
+    const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(whatsappMsg)}`;
+
     try {
-      // 1. Save to Supabase bookings table
+      // 1. Try to save to Supabase bookings table
       const { data, error: dbError } = await supabase
         .from('bookings')
         .insert([
@@ -59,19 +71,11 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
           }
         ]);
 
-      if (dbError) throw dbError;
-
-      setSuccess(true);
-
-      // 2. Open WhatsApp with pre-filled message
-      const bookingDateISO = formData.booking_date ? new Date(formData.booking_date).toISOString() : '';
-      const formattedDate = formData.booking_date ? new Date(formData.booking_date).toLocaleString() : '';
-      const whatsappMsg = `Hello Sachi Saloon, I would like to book an appointment!\n\n*Name:* ${formData.customer_name}\n*Phone:* ${formData.phone}\n*Service:* ${formData.service || dropdownServices[0]}\n*Date & Time:* ${formattedDate}\n*Message:* ${formData.message || 'None'}`;
-
-      const cleanNum = whatsappNumber.replace(/[^0-9]/g, '');
-      const waUrl = `https://wa.me/${cleanNum}?text=${encodeURIComponent(whatsappMsg)}`;
+      if (dbError) {
+        console.warn("Supabase database logging failed, redirecting directly to WhatsApp:", dbError);
+      }
       
-      // Open in a new tab
+      setSuccess(true);
       window.open(waUrl, '_blank');
 
       // Reset form
@@ -79,12 +83,24 @@ export default function BookingForm({ services = [], whatsappNumber = '+94-74289
         customer_name: '',
         phone: '',
         service: dropdownServices[0] || '',
-        booking_date: '',
+        booking_date: null,
         message: ''
       });
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'Failed to submit booking. Please configure Supabase and try again.');
+      console.warn("Supabase connection issue, falling back to WhatsApp:", err);
+      
+      // Even if database fails, still perform WhatsApp redirect
+      setSuccess(true);
+      window.open(waUrl, '_blank');
+
+      // Reset form
+      setFormData({
+        customer_name: '',
+        phone: '',
+        service: dropdownServices[0] || '',
+        booking_date: null,
+        message: ''
+      });
     } finally {
       setLoading(false);
     }
