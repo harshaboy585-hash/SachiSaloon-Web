@@ -33,16 +33,19 @@ export default function AdminLogin() {
     checkUser();
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simple hardcoded admin credentials (you can change as needed)
-    const adminEmail = "admin@sachisaloon.com";
-    const adminPassword = "1234";
-    if (email === adminEmail && password === adminPassword) {
-      navigate('/admin');
-    } else {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
       alert('Invalid email or password');
+    } else {
+      navigate('/admin');
     }
+    setLoading(false);
   };
 
 
