@@ -71,41 +71,37 @@ export default function TrackAppointment() {
     };
   }, [realtimeChannel]);
 
-  return (
-    <section className="track-appointment-section" style={{ marginTop: '2rem' }}>
-      <h2 className="section-title" style={{ color: '#fff' }}>Track Your Appointment</h2>
-      <div className="track-input-group" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-        <input
-          type="text"
-          placeholder="Enter phone number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="phone-input"
-          style={{ padding: '0.5rem', flex: '1', borderRadius: '4px', border: '1px solid #555', background: '#222', color: '#fff' }}
-        />
-        <button
-          onClick={handleTrack}
-          disabled={loading}
-          className="track-button"
-          style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: '#d4af37', color: '#000', border: 'none', cursor: 'pointer' }}
-        >
-          {loading ? 'Tracking...' : 'Track'}
-        </button>
-      </div>
-      {error && <p style={{ color: '#ff4d4f' }}>{error}</p>}
-      {booking && (
-        <div className="booking-card" style={{ background: 'rgba(0,0,0,0.6)', padding: '1rem', borderRadius: '8px', color: '#fff' }}>
-          <p><strong>Customer Name:</strong> {booking.full_name}</p>
-          <p><strong>Service:</strong> {booking.service}</p>
-          <p><strong>Date & Time:</strong> {new Date(booking.start_time).toLocaleString()}</p>
-          <p>
-            <strong>Status:</strong>{' '}
-            <span style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', ...statusColors[booking.status] || { background: '#999', color: '#fff' }}}>
-              {booking.status}
-            </span>
-          </p>
+    return (
+      <section className="track-appointment-section">
+        <h2 className="section-title">Track Your Appointment</h2>
+        <div className="track-input-group">
+          <input
+            type="text"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="phone-input"
+          />
+          <button
+            onClick={handleTrack}
+            disabled={loading}
+            className="track-button"
+          >
+            {loading ? 'Tracking...' : 'Track'}
+          </button>
         </div>
-      )}
-    </section>
-  );
+        {error && <p className="error-msg">{error}</p>}
+        {booking && (
+          <div className="booking-card">
+            <p><strong>Name:</strong> {booking.full_name}</p>
+            <p><strong>Service:</strong> {booking.service}</p>
+            <p><strong>When:</strong> {new Date(booking.start_time).toLocaleString()}</p>
+            <p className="status-line">
+              <strong>Status:</strong>{' '}
+              <span className={`status-badge ${booking.status?.toLowerCase()}`}>{booking.status}</span>
+            </p>
+          </div>
+        )}
+      </section>
+    );
 }
