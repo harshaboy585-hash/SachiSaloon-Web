@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-// Mapping of booking status to badge colors (using inline styles to match luxury theme)
+// Badge colors matching luxury theme
 const statusColors = {
   Pending: { background: '#d4af37', color: '#000' }, // Gold
   Confirmed: { background: '#28a745', color: '#fff' }, // Green
@@ -34,21 +34,13 @@ export default function TrackAppointment() {
       if (fetchError) throw fetchError;
       if (data && data.length > 0) {
         setBooking(data[0]);
-        // Set up realtime listener for this booking
         const bookingId = data[0].id;
         const channel = supabase
           .channel('public:bookings')
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'bookings', filter: `id=eq.${bookingId}` },
-            payload => {
-              if (payload.new) {
-                setBooking(prev => ({ ...prev, ...payload.new }));
-              }
-            }
-          )
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: `id=eq.${bookingId}` }, payload => {
+            if (payload.new) setBooking(prev => ({ ...prev, ...payload.new }));
+          })
           .subscribe();
-        // Store channel for cleanup
         setRealtimeChannel(channel);
       } else {
         setError('No booking found for this phone number.');
@@ -61,7 +53,6 @@ export default function TrackAppointment() {
     }
   };
 
-  // Cleanup realtime channel on component unmount or when phone changes
   useEffect(() => {
     return () => {
       if (realtimeChannel) {
@@ -71,37 +62,33 @@ export default function TrackAppointment() {
     };
   }, [realtimeChannel]);
 
-    return (
-      <section className="track-appointment-section">
-        <h2 className="section-title">Track Your Appointment</h2>
-        <div className="track-input-group">
-          <input
-            type="password"
-            placeholder="Enter phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="phone-input"
-          />
-          <button
-            onClick={handleTrack}
-            disabled={loading}
-            className="track-button"
-          >
-            {loading ? 'Tracking...' : 'Track'}
-          </button>
+  return (
+    <section className="track-appointment-section">
+      <h2 className="section-title">Track Your Appointment</h2>
+      <div className="track-input-group">
+        <input
+          type="text"
+          placeholder="Enter phone number"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          className="phone-input"
+        />
+        <button onClick={handleTrack} disabled={loading} className="track-button">
+          {loading ? 'Tracking...' : 'Track'}
+        </button>
+      </div>
+      {error && <p className="error-msg">{error}</p>}
+      {booking && (
+        <div className="booking-card">
+          <p><strong>Name:</strong> {booking.full_name}</p>
+          <p><strong>Service:</strong> {booking.service}</p>
+          <p><strong>When:</strong> {new Date(booking.start_time).toLocaleString()}</p>
+          <p className="status-line">
+            <strong>Status:</strong>{' '}
+            <span className="status-badge" style={statusColors[booking.status]}> {booking.status} </span>
+          </p>
         </div>
-        {error && <p className="error-msg">{error}</p>}
-        {booking && (
-          <div className="booking-card">
-            <p><strong>Name:</strong> {booking.full_name}</p>
-            <p><strong>Service:</strong> {booking.service}</p>
-            <p><strong>When:</strong> {new Date(booking.start_time).toLocaleString()}</p>
-            <p className="status-line">
-              <strong>Status:</strong>{' '}
-              <span className={`status-badge ${booking.status?.toLowerCase()}`}>{booking.status}</span>
-            </p>
-          </div>
-        )}
-      </section>
-    );
+      )}
+    </section>
+  );
 }
