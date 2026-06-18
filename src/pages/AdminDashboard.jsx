@@ -134,10 +134,43 @@ export default function AdminDashboard() {
   // BOOKINGS HANDLERS
   // ====================
   const updateBookingStatus = async (id, status) => {
+    if (status === 'Completed') {
+      const confirm = window.confirm(
+        'Marking this booking as Completed will permanently remove it from the booking list. Do you want to continue?'
+      );
+      if (!confirm) {
+        // User cancelled, do not change status
+        return;
+      }
+      try {
+        // Update status to Completed
+        const { error: updateError } = await supabase
+          .from('bookings')
+          .update({ status })
+          .eq('id', id);
+        if (updateError) throw updateError;
+
+        // Delete the booking record
+        const { error: deleteError } = await supabase
+          .from('bookings')
+          .delete()
+          .eq('id', id);
+        if (deleteError) throw deleteError;
+
+        // Remove from local state
+        setBookings((prev) => prev.filter((b) => b.id !== id));
+        showNotification('success', 'Booking marked Completed and removed.');
+      } catch (err) {
+        showNotification('error', err.message);
+      }
+      return;
+    }
+
+    // Existing handling for other statuses
     try {
       const { error } = await supabase.from('bookings').update({ status }).eq('id', id);
       if (error) throw error;
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
+      setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
       showNotification('success', `Booking status updated to ${status}`);
     } catch (err) {
       showNotification('error', err.message);
