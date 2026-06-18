@@ -1,11 +1,12 @@
 import React from 'react';
-import { Award, Compass, Heart } from 'lucide-react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 export default function About({ settings }) {
   const aboutText = settings?.about_text || '';
+  const [ref, animationClass] = useScrollAnimation('animate-slide-up');
 
   return (
-    <section id="about" className="about-section section-py">
+    <section id="about" className={`about-section section-py ${animationClass}`} ref={ref}>
       <div className="about-container container">
         <div className="about-grid">
           <div className="about-image-wrapper">

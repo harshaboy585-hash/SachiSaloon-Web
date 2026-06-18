@@ -70,12 +70,30 @@ export default function Gallery({ gallery = [] }) {
 
   useEffect(() => {
     if (!isPaused && totalItems > 1) {
-      timeoutRef.current = setTimeout(nextSlide, 2500);
+      timeoutRef.current = setTimeout(nextSlide, 2000);
     }
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [currentIndex, isPaused, totalItems]);
+
+  // Touch handling for swipe
+  const [touchStartX, setTouchStartX] = useState(null);
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+    setIsPaused(true);
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStartX !== null) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        diff > 0 ? nextSlide() : prevSlide();
+      }
+    }
+    setTouchStartX(null);
+    setIsPaused(false);
+  };
 
   if (totalItems === 0) return null;
 

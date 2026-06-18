@@ -27,7 +27,7 @@ export default function Hero({ settings }) {
       id="home" 
       className="hero-section" 
       style={{ 
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.82)), url(${bgImage})` 
+        backgroundImage: `linear-gradient(rgba(0,0,0,var(--hero-overlay-opacity,0.82)), rgba(0,0,0,var(--hero-overlay-opacity,0.82))), url(${bgImage})` 
       }}
     >
       <div className="hero-container container animate-fade-in-up">

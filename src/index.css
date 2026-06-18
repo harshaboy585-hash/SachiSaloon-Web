@@ -651,27 +651,16 @@ select {
   font-size: 0.9rem;
 }
 
-.youtube-btn {
-  background: linear-gradient(135deg, #cc181e 0%, #e52d27 100%);
-  border-color: #cc181e;
-  color: #ffffff;
-}
 
-.youtube-btn:hover {
-  background: linear-gradient(135deg, #e52d27 0%, #ff4b45 100%);
-  color: #ffffff;
-  border-color: #e52d27;
-  box-shadow: 0 0 15px rgba(229, 45, 39, 0.4);
-}
 
 .whatsapp-btn {
   background-color: #25D366;
-  color: var(--color-gold-light);
+  color: #ffffff;
 }
 
 .whatsapp-btn:hover {
-  background: rgba(37, 211, 102, 0.1);
-  color: var(--color-gold-light);
+  background-color: #1EBE5D;
+  color: #ffffff;
 }
 
 .btn-icon-svg {
@@ -712,20 +701,68 @@ select {
   animation-delay: -0.4s;
 }
 
-@keyframes scrollAnim {
-  0% {
+@keyframes slideUp {
+  from {
     opacity: 0;
-    transform: rotate(45deg) translate(-20px, -20px);
+    transform: translateY(30px);
   }
-
-  50% {
+  to {
     opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  100% {
+@keyframes slideLeft {
+  from {
     opacity: 0;
-    transform: rotate(45deg) translate(20px, 20px);
+    transform: translateX(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+.animate-slide-up {
+  animation: slideUp 0.9s ease forwards;
+}
+.animate-slide-left {
+  animation: slideLeft 0.9s ease forwards;
+}
+.animate-slide-right {
+  animation: slideRight 0.9s ease forwards;
+}
+.animate-scale-in {
+  animation: scaleIn 0.9s ease forwards;
 }
 
 @media (min-width: 768px) {
