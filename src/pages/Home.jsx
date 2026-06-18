@@ -97,6 +97,8 @@ export default function Home() {
         <Gallery gallery={gallery} />
         <Pricing pricing={pricing} />
         <BookingForm services={services} whatsappNumber={settings?.whatsapp} />
+        {/* Track Your Appointment Feature */}
+        <TrackAppointment />
         <Contact settings={settings} />
       </main>
       <Footer settings={settings} />
