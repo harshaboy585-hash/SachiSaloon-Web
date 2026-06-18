@@ -22,35 +22,17 @@ export default function About({ settings }) {
             <span className="section-subtitle">Our Legacy</span>
             <h2 className="section-title text-left">About Sachi Saloon</h2>
             <p className="about-text-p">{aboutText}</p>
-            
+
             <div className="about-features">
               <div className="feature-item">
                 <div className="feature-icon-wrapper">
                   <Award size={20} className="feature-icon" />
                 </div>
-                <div className="feature-text">
-                  <h3 className="feature-title">Master Barbers</h3>
-                  <p className="feature-desc">Highly skilled professionals trained in modern and classic cuts.</p>
-                </div>
-              </div>
-              
-              <div className="feature-item">
-                <div className="feature-icon-wrapper">
-                  <Compass size={20} className="feature-icon" />
-                </div>
-                <div className="feature-text">
-                  <h3 className="feature-title">Tailored Styling</h3>
-                  <p className="feature-desc">Personalized consultations to find the perfect look for your facial structure.</p>
-                </div>
               </div>
 
               <div className="feature-item">
                 <div className="feature-icon-wrapper">
-                  <Heart size={20} className="feature-icon" />
-                </div>
-                <div className="feature-text">
-                  <h3 className="feature-title">Premium Products</h3>
-                  <p className="feature-desc">We use high-grade styling gels, oils, and washes that nourish your hair and skin.</p>
+                  <Compass size={20} className="feature-icon" />
                 </div>
               </div>
             </div>
