@@ -73,7 +73,7 @@ export default function Footer({ settings }) {
           <p>&copy; {new Date().getFullYear()} {salonName}. All rights reserved.</p>
           <div className="footer-watermark">
             <span>Powered by</span>
-            <a href="https://github.com/harshaboy585-hash" target="_blank" rel="noopener noreferrer">
+            <a href="https://youtube.com/@toolcorex?si=cU5i9Efe0S85HTbw" target="_blank" rel="noopener noreferrer">
               <img src="/toolcorex.jpg" alt="TOOLCOREX Logo" className="watermark-logo" />
               <span className="watermark-brand">TOOLCOREX</span>
             </a>
