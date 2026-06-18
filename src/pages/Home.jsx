@@ -10,6 +10,7 @@ import BookingForm from '../components/BookingForm';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import FloatingWhatsApp from '../components/FloatingWhatsApp';
+import TrackAppointment from '../components/TrackAppointment';
 
 // Check if Supabase is properly configured
 const isSupabaseConfigured = () => {
