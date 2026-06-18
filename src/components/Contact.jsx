@@ -41,6 +41,18 @@ export default function Contact({ settings }) {
               <h3>Our Location</h3>
             </div>
             <p className="contact-info-value">{address}</p>
+            {/* Embedded Google Map */}
+            <div className="map-container" style={{ marginTop: '1rem' }}>
+              <iframe
+                src={`https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`}
+                width="100%"
+                height="200"
+                style={{ border: 0, borderRadius: '8px' }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Google Map of Salon Location"
+              ></iframe>
+            </div>
           </div>
 
           <div className="contact-card salon-card">

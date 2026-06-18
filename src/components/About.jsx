@@ -9,15 +9,14 @@ export default function About({ settings }) {
       <div className="about-container container">
         <div className="about-grid">
           <div className="about-image-wrapper">
-            <img
-              src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=800"
-              alt="Luxury Barbering Session"
-              className="about-image"
-            />
-            <div className="about-experience-badge">
-              <span className="badge-number">10+</span>
-              <span className="badge-label">Years of Luxury</span>
-            </div>
+            {settings?.hero_image_url && (
+              <img
+                src={settings.hero_image_url}
+                alt="Hero Image"
+                className="about-image"
+              />
+            )}
+            {/* Removed static badge for cleaner UI */}
           </div>
           <div className="about-content">
             <span className="section-subtitle">Our Legacy</span>
