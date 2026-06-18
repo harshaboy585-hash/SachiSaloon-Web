@@ -22,20 +22,6 @@ export default function About({ settings }) {
             <span className="section-subtitle">Our Legacy</span>
             <h2 className="section-title text-left">About Sachi Saloon</h2>
             <p className="about-text-p">{aboutText}</p>
-
-            <div className="about-features">
-              <div className="feature-item">
-                <div className="feature-icon-wrapper">
-                  <Award size={20} className="feature-icon" />
-                </div>
-              </div>
-
-              <div className="feature-item">
-                <div className="feature-icon-wrapper">
-                  <Compass size={20} className="feature-icon" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
