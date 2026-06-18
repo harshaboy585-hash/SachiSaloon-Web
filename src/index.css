@@ -212,9 +212,9 @@ select {
   font-weight: 600;
   text-align: center;
   border-radius: 4px;
-  border: 1px solid var(--border-gold);
+  border: 2px solid var(--border-gold);
   background: var(--bg-secondary);
-  color: #000;
+  color: #ffffff;
 }
 
 .phone-input::placeholder {
@@ -719,6 +719,7 @@ select {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -730,6 +731,7 @@ select {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -741,6 +743,7 @@ select {
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -752,6 +755,7 @@ select {
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -762,18 +766,23 @@ select {
 .animate-fade-in-up {
   animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
 .animate-fade-in {
   animation: fadeIn 1s ease-out forwards;
 }
+
 .animate-slide-up {
   animation: slideUp 0.9s ease forwards;
 }
+
 .animate-slide-left {
   animation: slideLeft 0.9s ease forwards;
 }
+
 .animate-slide-right {
   animation: slideRight 0.9s ease forwards;
 }
+
 .animate-scale-in {
   animation: scaleIn 0.9s ease forwards;
 }
@@ -2475,61 +2484,64 @@ select {
   .settings-form {
     padding: 3rem;
   }
-/* Track Appointment Section – compact styling */
-.track-appointment-section {
-  padding: 2rem 1rem;
-  background-color: var(--bg-secondary);
-  border-radius: var(--border-radius);
-  max-width: 600px;
-  margin: 2rem auto;
-}
 
-.track-appointment-section .section-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
+  /* Track Appointment Section – compact styling */
+  .track-appointment-section {
+    padding: 2rem 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    max-width: 600px;
+    margin: 2rem auto;
+  }
 
-.track-input-group {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
+  .track-appointment-section .section-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
 
-.track-input-group .phone-input {
-  width: 100%;
-  max-width: 100%;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.95rem;
-}
-
-.track-input-group .track-button {
-  width: 100%;
-  padding: 0.6rem;
-  font-size: 0.95rem;
-}
-
-.booking-card {
-  padding: 1rem;
-  font-size: 0.9rem;
-}
-
-@media (min-width: 768px) {
   .track-input-group {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
+
   .track-input-group .phone-input {
-    flex: 1 1 auto;
-    max-width: 300px;
-    margin-right: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
   }
+
   .track-input-group .track-button {
-    width: auto;
-    padding: 0.6rem 1.5rem;
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.95rem;
   }
-}
+
+  .booking-card {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  @media (min-width: 768px) {
+    .track-input-group {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .track-input-group .phone-input {
+      flex: 1 1 auto;
+      max-width: 300px;
+      margin-right: 0.5rem;
+    }
+
+    .track-input-group .track-button {
+      width: auto;
+      padding: 0.6rem 1.5rem;
+    }
+  }
 
 }
