@@ -27,7 +27,7 @@ export default function TrackAppointment() {
     try {
       const { data, error: fetchError } = await supabase
         .from('bookings')
-        .select('id, full_name, service, start_time, status')
+        .select('id, customer_name, service, booking_date, status')
         .eq('phone', phone.trim())
         .order('created_at', { ascending: false })
         .limit(1);
@@ -38,7 +38,12 @@ export default function TrackAppointment() {
         const channel = supabase
           .channel('public:bookings')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: `id=eq.${bookingId}` }, payload => {
-            if (payload.new) setBooking(prev => ({ ...prev, ...payload.new }));
+            if (payload.eventType === 'DELETE') {
+              setBooking(null);
+              setError('No booking found for this phone number.');
+            } else if (payload.new) {
+              setBooking(prev => ({ ...prev, ...payload.new }));
+            }
           })
           .subscribe();
         setRealtimeChannel(channel);
@@ -80,9 +85,9 @@ export default function TrackAppointment() {
       {error && <p className="error-msg">{error}</p>}
       {booking && (
         <div className="booking-card">
-          <p><strong>Name:</strong> {booking.full_name}</p>
+          <p><strong>Name:</strong> {booking.customer_name}</p>
           <p><strong>Service:</strong> {booking.service}</p>
-          <p><strong>When:</strong> {new Date(booking.start_time).toLocaleString()}</p>
+          <p><strong>When:</strong> {new Date(booking.booking_date).toLocaleString()}</p>
           <p className="status-line">
             <strong>Status:</strong>{' '}
             <span className="status-badge" style={statusColors[booking.status]}> {booking.status} </span>
