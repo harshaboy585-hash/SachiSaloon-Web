@@ -2,14 +2,7 @@ import React from 'react';
 import { Scissors, Sparkles, Wand2 } from 'lucide-react';
 
 export default function Services({ services = [] }) {
-  const defaultServices = [
-    { id: '1', name: 'Classic Haircut', description: 'Precision scissors and clipper cutting tailored to your facial structure.' },
-    { id: '2', name: 'Beard Trim & Razor Line', description: 'Detailed beard styling with hot towel treatment and straight razor lining.' },
-    { id: '3', name: 'Luxury Hair Coloring', description: 'Premium grey coverage or fashion color highlights.' },
-    { id: '4', name: 'Premium Hair Treatment', description: 'Revitalizing scalp massage and conditioning therapies.' }
-  ];
-
-  const activeServices = services.length > 0 ? services.filter(s => s.is_active) : defaultServices;
+  const activeServices = services.filter(s => s.is_active);
 
   // Custom icon map or dynamic rotation
   const getIcon = (index) => {

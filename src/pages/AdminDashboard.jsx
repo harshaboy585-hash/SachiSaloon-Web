@@ -35,6 +35,7 @@ export default function AdminDashboard() {
   // Action states (Forms/Modals)
   const [serviceForm, setServiceForm] = useState({ id: '', name: '', description: '', display_order: 0, is_active: true });
   const [pricingForm, setPricingForm] = useState({ id: '', service_name: '', price: '', display_order: 0, is_active: true });
+  const [combinedForm, setCombinedForm] = useState({ serviceId: '', pricingId: '', name: '', description: '', price: '', display_order: 0, is_active: true });
   const [galleryForm, setGalleryForm] = useState({ id: '', title: '', media_type: 'image', display_order: 0, is_active: true });
   const [galleryFile, setGalleryFile] = useState(null);
   const [galleryMediaUrl, setGalleryMediaUrl] = useState(''); // Text URL fallback
@@ -270,6 +271,99 @@ export default function AdminDashboard() {
   };
 
   // ====================
+  // COMBINED SERVICES + PRICING HANDLERS
+  // ====================
+  const handleCombinedSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editingId) {
+        const { error: svcErr } = await supabase.from('services').update({
+          name: combinedForm.name,
+          description: combinedForm.description,
+          display_order: parseInt(combinedForm.display_order) || 0,
+          is_active: combinedForm.is_active
+        }).eq('id', combinedForm.serviceId);
+        if (svcErr) throw svcErr;
+
+        if (combinedForm.pricingId) {
+          const { error: priceErr } = await supabase.from('pricing').update({
+            service_name: combinedForm.name,
+            price: combinedForm.price,
+            display_order: parseInt(combinedForm.display_order) || 0,
+            is_active: combinedForm.is_active
+          }).eq('id', combinedForm.pricingId);
+          if (priceErr) throw priceErr;
+        } else {
+          const { error: priceErr } = await supabase.from('pricing').insert([{
+            service_name: combinedForm.name,
+            price: combinedForm.price,
+            display_order: parseInt(combinedForm.display_order) || 0,
+            is_active: combinedForm.is_active
+          }]);
+          if (priceErr) throw priceErr;
+        }
+        showNotification('success', 'Service & Price updated in both sections');
+      } else {
+        const { error: svcErr } = await supabase.from('services').insert([{
+          name: combinedForm.name,
+          description: combinedForm.description,
+          display_order: parseInt(combinedForm.display_order) || 0,
+          is_active: combinedForm.is_active
+        }]);
+        if (svcErr) throw svcErr;
+
+        const { error: priceErr } = await supabase.from('pricing').insert([{
+          service_name: combinedForm.name,
+          price: combinedForm.price,
+          display_order: parseInt(combinedForm.display_order) || 0,
+          is_active: combinedForm.is_active
+        }]);
+        if (priceErr) throw priceErr;
+
+        showNotification('success', 'Service & Price added to both sections');
+      }
+
+      setCombinedForm({ serviceId: '', pricingId: '', name: '', description: '', price: '', display_order: 0, is_active: true });
+      setEditingId(null);
+      fetchDashboardData();
+    } catch (err) {
+      showNotification('error', err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditCombined = (item) => {
+    setEditingId(item.id);
+    setCombinedForm({
+      serviceId: item.id,
+      pricingId: item.pricingId || '',
+      name: item.name || '',
+      description: item.description || '',
+      price: item.price || '',
+      display_order: item.display_order || 0,
+      is_active: item.is_active !== undefined ? item.is_active : true
+    });
+  };
+
+  const deleteCombined = async (serviceId, pricingId) => {
+    if (!window.confirm('Are you sure you want to delete this service & price item?')) return;
+    try {
+      const { error: svcErr } = await supabase.from('services').delete().eq('id', serviceId);
+      if (svcErr) throw svcErr;
+      if (pricingId) {
+        const { error: priceErr } = await supabase.from('pricing').delete().eq('id', pricingId);
+        if (priceErr) throw priceErr;
+      }
+      showNotification('success', 'Service & Price deleted from both sections');
+      fetchDashboardData();
+    } catch (err) {
+      showNotification('error', err.message);
+    }
+  };
+
+  // ====================
   // GALLERY HANDLERS
   // ====================
   const handleGallerySubmit = async (e) => {
@@ -289,7 +383,12 @@ export default function AdminDashboard() {
           .from('gallery')
           .upload(filePath, galleryFile);
 
-        if (uploadError) throw new Error(`Storage Upload failed: ${uploadError.message}. Make sure the bucket 'gallery' is created in Supabase with public access.`);
+        if (uploadError) {
+          if (uploadError.message.includes('row-level security') || uploadError.message.includes('security policy') || uploadError.message.includes('Bucket not found')) {
+            throw new Error(`Gallery bucket not configured. In Supabase Dashboard: Storage → New Bucket → name it 'gallery' → enable Public. Then go to Storage Policies → Add policy → Allow authenticated INSERT on bucket_id = 'gallery'.`);
+          }
+          throw new Error(`Storage Upload failed: ${uploadError.message}`);
+        }
 
         const { data: urlData } = supabase.storage
           .from('gallery')
@@ -415,6 +514,12 @@ export default function AdminDashboard() {
     setSettings({ ...settings, [e.target.name]: e.target.value });
   };
 
+  // Merge services + pricing by name for the combined tab
+  const combinedItems = services.map(service => {
+    const match = pricing.find(p => p.service_name === service.name);
+    return { ...service, price: match?.price || '', pricingId: match?.id || '' };
+  });
+
   return (
     <div className="dashboard-container">
       {/* Top Navigation */}
@@ -440,16 +545,10 @@ export default function AdminDashboard() {
             <Calendar size={18} /> Bookings
           </button>
           <button 
-            className={`sidebar-tab ${activeTab === 'services' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('services'); setEditingId(null); }}
+            className={`sidebar-tab ${activeTab === 'services-pricing' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('services-pricing'); setEditingId(null); setCombinedForm({ serviceId: '', pricingId: '', name: '', description: '', price: '', display_order: 0, is_active: true }); }}
           >
-            <Scissors size={18} /> Services
-          </button>
-          <button 
-            className={`sidebar-tab ${activeTab === 'pricing' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('pricing'); setEditingId(null); }}
-          >
-            <DollarSign size={18} /> Pricing Menu
+            <Scissors size={18} /> Services &amp; Pricing
           </button>
           <button 
             className={`sidebar-tab ${activeTab === 'gallery' ? 'active' : ''}`}
@@ -538,24 +637,25 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              {/* SERVICES TAB */}
-              {activeTab === 'services' && (
+              {/* SERVICES & PRICING — COMBINED TAB */}
+              {activeTab === 'services-pricing' && (
                 <div className="admin-crud-tab">
                   <div className="tab-header">
-                    <h2>Manage Grooming Services</h2>
+                    <h2>Manage Services &amp; Pricing</h2>
+                    <p>Adding or editing here saves to both the <strong>Services</strong> and <strong>Pricing</strong> sections of your site simultaneously.</p>
                   </div>
 
                   <div className="crud-grid">
-                    <form onSubmit={handleServiceSubmit} className="glass-panel crud-form">
-                      <h3>{editingId ? 'Edit Service' : 'Add New Service'}</h3>
-                      
+                    <form onSubmit={handleCombinedSubmit} className="glass-panel crud-form">
+                      <h3>{editingId ? 'Edit Service &amp; Price' : 'Add Service &amp; Price'}</h3>
+
                       <div className="form-group">
                         <label className="form-label">Service Name</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           required
-                          value={serviceForm.name} 
-                          onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })} 
+                          value={combinedForm.name}
+                          onChange={(e) => setCombinedForm({ ...combinedForm, name: e.target.value })}
                           placeholder="e.g. Classic Haircut"
                           className="form-input"
                         />
@@ -563,32 +663,43 @@ export default function AdminDashboard() {
 
                       <div className="form-group">
                         <label className="form-label">Description</label>
-                        <textarea 
-                          rows="3" 
-                          value={serviceForm.description} 
-                          onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })} 
+                        <textarea
+                          rows="3"
+                          value={combinedForm.description}
+                          onChange={(e) => setCombinedForm({ ...combinedForm, description: e.target.value })}
                           placeholder="Service details..."
                           className="form-input"
                         ></textarea>
                       </div>
 
+                      <div className="form-group">
+                        <label className="form-label">Price</label>
+                        <input
+                          type="text"
+                          required
+                          value={combinedForm.price}
+                          onChange={(e) => setCombinedForm({ ...combinedForm, price: e.target.value })}
+                          placeholder="e.g. LKR 1,500"
+                          className="form-input"
+                        />
+                      </div>
+
                       <div className="form-row" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                         <div className="form-group" style={{ flex: '1', marginBottom: '0' }}>
                           <label className="form-label">Display Order</label>
-                          <input 
-                            type="number" 
-                            value={serviceForm.display_order} 
-                            onChange={(e) => setServiceForm({ ...serviceForm, display_order: e.target.value })} 
+                          <input
+                            type="number"
+                            value={combinedForm.display_order}
+                            onChange={(e) => setCombinedForm({ ...combinedForm, display_order: e.target.value })}
                             className="form-input"
                           />
                         </div>
-
                         <div className="form-group" style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '24px', marginBottom: '0' }}>
                           <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input 
-                              type="checkbox" 
-                              checked={serviceForm.is_active} 
-                              onChange={(e) => setServiceForm({ ...serviceForm, is_active: e.target.checked })} 
+                            <input
+                              type="checkbox"
+                              checked={combinedForm.is_active}
+                              onChange={(e) => setCombinedForm({ ...combinedForm, is_active: e.target.checked })}
                             />
                             Is Active?
                           </label>
@@ -597,12 +708,12 @@ export default function AdminDashboard() {
 
                       <div className="form-actions">
                         <button type="submit" disabled={saving} className="btn-gold">
-                          {saving ? 'Saving...' : editingId ? 'Update Service' : 'Insert Service'}
+                          {saving ? 'Saving...' : editingId ? 'Update Service & Price' : 'Add to Both Sections'}
                         </button>
                         {editingId && (
-                          <button 
-                            type="button" 
-                            onClick={() => { setEditingId(null); setServiceForm({ id: '', name: '', description: '', display_order: 0, is_active: true }); }}
+                          <button
+                            type="button"
+                            onClick={() => { setEditingId(null); setCombinedForm({ serviceId: '', pricingId: '', name: '', description: '', price: '', display_order: 0, is_active: true }); }}
                             className="btn-outline"
                           >
                             Cancel
@@ -612,114 +723,22 @@ export default function AdminDashboard() {
                     </form>
 
                     <div className="crud-list-wrapper">
-                      <h3>Active Services</h3>
+                      <h3>Services &amp; Prices</h3>
                       <div className="crud-list">
-                        {services.map((service) => (
-                          <div key={service.id} className={`crud-item ${!service.is_active ? 'item-inactive' : ''}`}>
-                            <div className="crud-item-details">
-                              <h4>{service.name} <span className="order-badge">#{service.display_order}</span></h4>
-                              <p>{service.description || 'No description provided.'}</p>
-                              {!service.is_active && <span className="badge-status-off">Inactive</span>}
-                            </div>
-                            <div className="crud-item-actions">
-                              <button onClick={() => startEditService(service)} className="btn-icon-edit" title="Edit"><Edit size={16} /></button>
-                              <button onClick={() => deleteService(service.id)} className="btn-icon-delete" title="Delete"><Trash2 size={16} /></button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* PRICING TAB */}
-              {activeTab === 'pricing' && (
-                <div className="admin-crud-tab">
-                  <div className="tab-header">
-                    <h2>Manage Pricing Menu</h2>
-                  </div>
-
-                  <div className="crud-grid">
-                    <form onSubmit={handlePricingSubmit} className="glass-panel crud-form">
-                      <h3>{editingId ? 'Edit Price Item' : 'Add Price Item'}</h3>
-                      
-                      <div className="form-group">
-                        <label className="form-label">Service / Group Name</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={pricingForm.service_name} 
-                          onChange={(e) => setPricingForm({ ...pricingForm, service_name: e.target.value })} 
-                          placeholder="e.g. Haircut & Wash"
-                          className="form-input"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Price Display String</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={pricingForm.price} 
-                          onChange={(e) => setPricingForm({ ...pricingForm, price: e.target.value })} 
-                          placeholder="e.g. LKR 1,500 or $35"
-                          className="form-input"
-                        />
-                      </div>
-
-                      <div className="form-row" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                        <div className="form-group" style={{ flex: '1', marginBottom: '0' }}>
-                          <label className="form-label">Display Order</label>
-                          <input 
-                            type="number" 
-                            value={pricingForm.display_order} 
-                            onChange={(e) => setPricingForm({ ...pricingForm, display_order: e.target.value })} 
-                            className="form-input"
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '24px', marginBottom: '0' }}>
-                          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input 
-                              type="checkbox" 
-                              checked={pricingForm.is_active} 
-                              onChange={(e) => setPricingForm({ ...pricingForm, is_active: e.target.checked })} 
-                            />
-                            Is Active?
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="form-actions">
-                        <button type="submit" disabled={saving} className="btn-gold">
-                          {saving ? 'Saving...' : editingId ? 'Update Price' : 'Insert Price'}
-                        </button>
-                        {editingId && (
-                          <button 
-                            type="button" 
-                            onClick={() => { setEditingId(null); setPricingForm({ id: '', service_name: '', price: '', display_order: 0, is_active: true }); }}
-                            className="btn-outline"
-                          >
-                            Cancel
-                          </button>
+                        {combinedItems.length === 0 && (
+                          <div className="empty-state">No services yet. Use the form to add your first service.</div>
                         )}
-                      </div>
-                    </form>
-
-                    <div className="crud-list-wrapper">
-                      <h3>Active Prices</h3>
-                      <div className="crud-list">
-                        {pricing.map((price) => (
-                          <div key={price.id} className={`crud-item ${!price.is_active ? 'item-inactive' : ''}`}>
+                        {combinedItems.map((item) => (
+                          <div key={item.id} className={`crud-item ${!item.is_active ? 'item-inactive' : ''}`}>
                             <div className="crud-item-details">
-                              <h4>{price.service_name} <span className="order-badge">#{price.display_order}</span></h4>
-                              <p className="price-tag">{price.price}</p>
-                              {!price.is_active && <span className="badge-status-off">Inactive</span>}
+                              <h4>{item.name} <span className="order-badge">#{item.display_order}</span></h4>
+                              <p>{item.description || 'No description provided.'}</p>
+                              {item.price && <p className="price-tag">{item.price}</p>}
+                              {!item.is_active && <span className="badge-status-off">Inactive</span>}
                             </div>
                             <div className="crud-item-actions">
-                              <button onClick={() => startEditPricing(price)} className="btn-icon-edit" title="Edit"><Edit size={16} /></button>
-                              <button onClick={() => deletePricing(price.id)} className="btn-icon-delete" title="Delete"><Trash2 size={16} /></button>
+                              <button onClick={() => startEditCombined(item)} className="btn-icon-edit" title="Edit"><Edit size={16} /></button>
+                              <button onClick={() => deleteCombined(item.id, item.pricingId)} className="btn-icon-delete" title="Delete"><Trash2 size={16} /></button>
                             </div>
                           </div>
                         ))}

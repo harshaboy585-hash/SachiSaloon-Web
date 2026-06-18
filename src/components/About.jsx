@@ -2,8 +2,7 @@ import React from 'react';
 import { Award, Compass, Heart } from 'lucide-react';
 
 export default function About({ settings }) {
-  const defaultText = "At Sachi Saloon, we believe that grooming is an art. Established with the vision of offering unparalleled styling services for modern gentlemen, our saloon combines classic barbershop traditions with modern styling techniques. Our team of professional barbers is dedicated to delivering precision haircuts, beard styling, hair coloring, and skin care services tailored to your individual style.";
-  const aboutText = settings?.about_text || defaultText;
+  const aboutText = settings?.about_text || '';
 
   return (
     <section id="about" className="about-section section-py">

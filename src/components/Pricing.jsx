@@ -1,15 +1,7 @@
 import React from 'react';
 
 export default function Pricing({ pricing = [] }) {
-  const defaultPricing = [
-    { id: 'p1', service_name: 'Haircut & Wash', price: 'LKR 1,500' },
-    { id: 'p2', service_name: 'Beard Grooming & Shape', price: 'LKR 1,000' },
-    { id: 'p3', service_name: 'Hair Coloring', price: 'LKR 2,500' },
-    { id: 'p4', service_name: 'Shave & Facial', price: 'LKR 2,000' },
-    { id: 'p5', service_name: 'Combo (Cut + Shave)', price: 'LKR 2,300' }
-  ];
-
-  const activePricing = pricing.length > 0 ? pricing.filter(p => p.is_active) : defaultPricing;
+  const activePricing = pricing.filter(p => p.is_active);
 
   return (
     <section id="pricing" className="pricing-section section-py">
