@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS site_settings (
   email TEXT,
   address TEXT,
   opening_hours TEXT,
-  hero_image_url TEXT
+  hero_image_url TEXT,
+  hero_video_url TEXT
 );
 
 -- Insert default site settings if empty
@@ -23,7 +24,7 @@ SELECT
   'Sachi Saloon',
   'Premium Men’s Grooming Experience',
   'Professional Haircuts, Beard Styling, Hair Coloring and Grooming Services',
-  'At Sachi Saloon, we believe that grooming is an art. Established with the vision of offering unparalleled styling services for modern gentlemen, our saloon combines classic barbershop traditions with modern styling techniques.',
+  '',
   '+94 74 289 2528',
   '+94-742892528',
   'https://youtube.com/@sachisaloon',
