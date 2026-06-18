@@ -113,39 +113,3 @@ ALTER TABLE services DISABLE ROW LEVEL SECURITY;
 ALTER TABLE pricing DISABLE ROW LEVEL SECURITY;
 ALTER TABLE gallery DISABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
-
--- ============================================================
--- 7. GALLERY STORAGE BUCKET SETUP (Run after creating bucket)
--- ============================================================
--- Step 1: Go to Supabase Dashboard → Storage → New Bucket
---         Name: gallery   |   Toggle: Public bucket ✓
---
--- Step 2: Run these policies in Supabase SQL Editor:
-
--- Allow anyone to view/read gallery files
-DO $$
-BEGIN
-  CREATE POLICY "Public gallery read" ON storage.objects
-    FOR SELECT TO public
-    USING (bucket_id = 'gallery');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
--- Allow authenticated users (admin) to upload files
-DO $$
-BEGIN
-  CREATE POLICY "Auth gallery insert" ON storage.objects
-    FOR INSERT TO authenticated
-    WITH CHECK (bucket_id = 'gallery');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
--- Allow authenticated users to delete their uploads
-DO $$
-BEGIN
-  CREATE POLICY "Auth gallery delete" ON storage.objects
-    FOR DELETE TO authenticated
-    USING (bucket_id = 'gallery');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
