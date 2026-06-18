@@ -7,7 +7,7 @@ const YoutubeIcon = ({ size = 18, className = '' }) => (
     height={size}
     className={className}
   >
-    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.108C19.516 3.5 12 3.5 12 3.5s-7.516 0-9.388.555A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.108C4.484 20.5 12 20.5 12 20.5s7.516 0 9.388-.555a3.003 3.003 0 0 0 2.11-2.108C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.108C19.516 3.5 12 3.5 12 3.5s-7.516 0-9.388.555A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.108C4.484 20.5 12 20.5 12 20.5s7.516 0 9.388-.555a3.003 3.003 0 0 0 2.11-2.108C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
   </svg>
 );
 
@@ -16,25 +16,25 @@ export default function Hero({ settings }) {
   const subtitle = settings?.hero_subtitle || "Professional Haircuts, Beard Styling, Hair Coloring and Grooming Services";
   const youtubeUrl = settings?.youtube_url || "https://youtube.com/@sachisaloon?si=jY9UeghTp3zNAbAV";
   const whatsappNumber = settings?.whatsapp || "+94-742892528";
-  
+
   // Format WhatsApp link correctly
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
   const whatsappUrl = `https://wa.me/${cleanNumber}`;
   const bgImage = settings?.hero_image_url || "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=1200";
 
   return (
-    <section 
-      id="home" 
-      className="hero-section" 
-      style={{ 
-        backgroundImage: `linear-gradient(rgba(0,0,0,var(--hero-overlay-opacity,0.82)), rgba(0,0,0,var(--hero-overlay-opacity,0.82))), url(${bgImage})` 
+    <section
+      id="home"
+      className="hero-section"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,var(--hero-overlay-opacity,0.35)), rgba(0,0,0,var(--hero-overlay-opacity,0.35))), url(${bgImage})`
       }}
     >
       <div className="hero-container container animate-fade-in-up">
         <span className="hero-accent">Welcome to Sachi Saloon</span>
         <h1 className="hero-title">{title}</h1>
         <p className="hero-subtitle">{subtitle}</p>
-        
+
         <div className="hero-buttons">
           <a
             href={youtubeUrl}

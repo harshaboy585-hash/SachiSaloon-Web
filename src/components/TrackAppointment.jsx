@@ -76,8 +76,8 @@ export default function TrackAppointment() {
         <h2 className="section-title">Track Your Appointment</h2>
         <div className="track-input-group">
           <input
-            type="text"
-            placeholder="Phone number"
+            type="password"
+            placeholder="Enter phone number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="phone-input"
